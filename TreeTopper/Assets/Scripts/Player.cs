@@ -137,7 +137,13 @@ public class Player : MonoBehaviour
             return;
         }
 
-        transform.RotateAround(m_curSwingPoint.position, Vector3.forward, m_curSwingSpeed * Time.deltaTime);
+        float maxY = m_curSwingPoint.position.y - m_swingRadius;
+        float startY = m_curSwingPoint.position.y + (m_swingRadius * m_apexNormal);
+        float speedMod = (transform.position.y - startY / maxY - startY);
+
+        float curSpeed = Mathf.Lerp(m_curSwingSpeed, m_curSwingSpeed * m_apexSwingSpeed, speedMod);
+
+        transform.RotateAround(m_curSwingPoint.position, Vector3.forward, curSpeed * Time.deltaTime);
         Vector3 delta = transform.position - m_curSwingPoint.position;
         delta.z = 0;
         transform.position = m_curSwingPoint.position + delta.normalized * m_swingRadius;
@@ -162,7 +168,6 @@ public class Player : MonoBehaviour
         GUILayout.Label($"Current State: {m_curState}");
         GUILayout.Label($"Speed: {m_avgSpeed.ToString("0.0")}");
     }
-
 
     private void TransitionState(State newState)
     {
@@ -231,12 +236,14 @@ public class Player : MonoBehaviour
     }
 
     private State m_curState = State.Start;
-    private const float m_startSwingSpeed = 150.0f;
+    private const float m_startSwingSpeed = 600.0f;
     private const float m_swingRadius = 2.0f;
     private float m_curSwingSpeed = m_startSwingSpeed;
     private float m_swingIncrementSpeed = 400f;
     private float m_maxSwingSpeed = 500000.0f;
     private Transform m_curSwingPoint = null;
+    private float m_apexSwingSpeed = 0.5f;
+    private float m_apexNormal = 0.6f;
 
     private int m_curSpeedIDX = 0;
     private float[] m_speedBuffer = new float[m_speedBufferLen];
